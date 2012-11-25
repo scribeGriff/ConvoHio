@@ -16,7 +16,7 @@ void randomSelectTests() {
       expect(topFive, isNotNull);
       expect(topFive.value, equals(67));
       expect(topFive.data, hasLength(order));
-      expect(topFive.count, inExclusiveRange(topFive.input.length,
+      expect(topFive.count, inInclusiveRange(topFive.input.length - 1,
         topFive.input.length*log2(topFive.input.length)));
     });
     test('12th lowest order from file', (){
