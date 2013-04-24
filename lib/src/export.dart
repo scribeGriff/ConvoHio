@@ -1,10 +1,13 @@
+// Copyright (c) 2013, scribeGriff (Richard Griffith)
+// https://github.com/scribeGriff/ConvoWeb
+// All rights reserved.  Please see the LICENSE.md file.
+
 part of convohio;
 
-/* ****************************************************** *
- *   Class _Export saves data to a file or sends the data *
- *   to the web using a websocket.                        *
- *   Library: ConvoHio (c) 2012 scribeGriff               *
- * ****************************************************** */
+/**
+ *   Class _Export saves data to a file or sends the data
+ *   to the web using a websocket.
+ */
 
 //Save data to a file.
 void exportToFile(var data, String filename) =>
@@ -16,103 +19,92 @@ void exportToWeb(var data, String host, int port) =>
 
 class _Export {
 
-  Map mapData;
+  HashMap mapData;
   List listData;
   bool isMap = false;
   bool isComplex = false;
 
   _Export(var data) {
-
-    if (data.runtimeType == Map) {
+    if (data.runtimeType == HashMap) {
       isMap = true;
       mapData = data;
     } else if (data.runtimeType == List) {
       listData = data;
-      if (data.every(f(element) => element is Complex)) {
+      if (data.every((element) => element is Complex)) {
         isComplex = true;
       }
     } else {
-      print("Data must be of type List or Map");
-      return;
+      throw new ArgumentError("input data is not valid.");
     }
   }
 
   void toFile(String filename) {
-
     List<String> tokens = filename.split(new RegExp(r'\.(?=[^.]+$)'));
     if (tokens.length == 1) tokens.add('txt');
     if (isMap) {
       mapData.forEach((k, v) {
         File fileHandle = new File('${tokens[0]}_k$k.${tokens[1]}');
-        RandomAccessFile dataFile = fileHandle.openSync(FileMode.WRITE);
+        IOSink dataFile = fileHandle.openWrite();
         // TODO this is specific to the format of psums from fsps().
         // Needs to be more general.
         for (var i = 0; i < mapData[k].length; i++) {
-          dataFile.writeStringSync('${mapData[k][i].real}\t'
+          dataFile.write('${mapData[k][i].real}\t'
               '${mapData[k][i].imag}\n');
         }
-        dataFile.closeSync();
+        dataFile.close();
       });
     } else {
       File fileHandle = new File('${tokens[0]}_data.${tokens[1]}');
-      RandomAccessFile dataFile = fileHandle.openSync(FileMode.WRITE);
+      IOSink dataFile = fileHandle.openWrite();
       if (isComplex) {
         for (var i = 0; i < listData.length; i++) {
           listData[i] = listData[i].cround2;
-          dataFile.writeStringSync("${listData[i].real}\t${listData[i].imag}\n");
+          dataFile.write("${listData[i].real}\t${listData[i].imag}\n");
         }
       } else {
         for (var i = 0; i < listData.length; i++) {
-          dataFile.writeStringSync('${listData[i]}\n');
+          dataFile.write('${listData[i]}\n');
         }
       }
-      dataFile.closeSync();
+      dataFile.close();
     }
   }
 
   void toWeb(String host, int port) {
-
     //connect with ws://localhost:8080/ws
     //for echo - http://www.websocket.org/echo.html
     if (host == 'local') host = '127.0.0.1';
-
-    HttpServer _server = new HttpServer();
-    WebSocketHandler _wsHandler = new WebSocketHandler();
-    _server.addRequestHandler((req) => req.path == "/ws", _wsHandler.onRequest);
-
-    // Open the connection.
-    _wsHandler.onOpen = (WebSocketConnection wsConn) {
+    HttpServer.bind(host, port).then((server) {
       print('Opening connection at $host:$port');
-
-      // Receive message and send reply.
-      wsConn.onMessage = (message) {
-        var msg = JSON.parse(message);
-        print("Received the following message: \n"
-            "${msg["request"]}\n${msg["date"]}");
-        if (isMap) {
-          wsConn.send(JSON.stringify(mapData));
-        } else {
-          if (isComplex) {
-            List real = new List(listData.length);
-            List imag = new List(listData.length);
-            for (var i = 0; i < listData.length; i++) {
-              listData[i] = listData[i].cround2;
-              real[i] = listData[i].real;
-              imag[i] = listData[i].imag;
-            }
-            wsConn.send(JSON.stringify({"real": real, "imag": imag}));
+      server.transform(new WebSocketTransformer()).listen((WebSocket webSocket) {
+        webSocket.listen((message) {
+          var msg = json.parse(message);
+          print("Received the following message: \n"
+                "${msg["request"]}\n${msg["date"]}");
+          if (isMap) {
+            webSocket.send(json.stringify(mapData));
           } else {
-            wsConn.send(JSON.stringify({"real": listData, "imag": null}));
+            if (isComplex) {
+              List real = new List(listData.length);
+              List imag = new List(listData.length);
+              for (var i = 0; i < listData.length; i++) {
+                listData[i] = listData[i].cround2;
+                real[i] = listData[i].real;
+                imag[i] = listData[i].imag;
+              }
+              webSocket.send(json.stringify({"real": real, "imag": imag}));
+            } else {
+              webSocket.send(json.stringify({"real": listData, "imag": null}));
+            }
           }
-        }
-      };
-
-      // Close the connection.
-      wsConn.onClosed = (int status, String reason) {
-        print('Connection closed: Status - $status : Reason - $reason');
-      };
-    };
-
-    _server.listen(host, port);
+        },
+        onDone: () {
+            print('Connection closed by client: Status - ${webSocket.closeCode}'
+                ' : Reason - ${webSocket.closeReason}');
+            server.close();
+        });
+      });
+    });
   }
 }
+

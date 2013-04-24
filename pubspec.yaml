@@ -1,12 +1,10 @@
 name: convohio
-description: A Server Side App for ConvoLab
 version: 0.0.1
 author: Richard Griffith <scribe.griff@gmail.com>
+description: A Server Side App for ConvoLab
 homepage: http://www.scribegriff.com
 dependencies:
-  unittest:
-    sdk: unittest
-  meta:
-    sdk: meta
   convolab:
     git: git://github.com/scribeGriff/ConvoLab.git
+  unittest: any
+  meta: any

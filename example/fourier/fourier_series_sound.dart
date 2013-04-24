@@ -7,6 +7,7 @@
 
 import 'package:convohio/convohio.dart';
 import 'package:convolab/convolab.dart';
+//import '../../../ConvoLab/lib/convolab.dart';
 
 void main() {
   List waveform = sound(4);
@@ -16,7 +17,7 @@ void main() {
     exportToWeb(fourier.jsonData, 'local', 8080);
     exportToFile(fourier.psums, 'local/data/fsps.txt');
     print('We have computed ${fourier.psums.length} Fourier series.');
-    if (fourier.psums[kvals[0]].every(f(element) => element is Complex)) {
+    if (fourier.psums[kvals[0]].every((element) => element is Complex)) {
       print('The computed Fourier series is of type Complex.');
     } else {
       print('The computed Fourier series is not Complex.');
