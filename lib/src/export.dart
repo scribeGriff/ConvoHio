@@ -82,7 +82,7 @@ class _Export {
           print("Received the following message: \n"
                 "${msg["request"]}\n${msg["date"]}");
           if (isMap) {
-            webSocket.send(json.stringify(mapData));
+            webSocket.add(json.stringify(mapData));
           } else {
             if (isComplex) {
               List real = new List(listData.length);
@@ -92,9 +92,9 @@ class _Export {
                 real[i] = listData[i].real;
                 imag[i] = listData[i].imag;
               }
-              webSocket.send(json.stringify({"real": real, "imag": imag}));
+              webSocket.add(json.stringify({"real": real, "imag": imag}));
             } else {
-              webSocket.send(json.stringify({"real": listData, "imag": null}));
+              webSocket.add(json.stringify({"real": listData, "imag": null}));
             }
           }
         },

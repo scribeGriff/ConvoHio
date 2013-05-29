@@ -1,6 +1,6 @@
 part of convohio;
 
-// TODO consolidate these three classes into one class.
+// TODO consolidate these three classes into one import class.
 //class Import {
 //}
 
@@ -19,7 +19,7 @@ class InputListHandler {
         _unsortedList = listFromFileAsync(fileOrList);
       }
     } else if (fileOrList is List) {
-      if (fileOrList.every(f(element) => element is int)) {
+      if (fileOrList.every((element) => element is int)) {
         _unsortedList = new List.from(fileOrList);
       } else {
         print("The input data is not formatted correctly.");
@@ -53,6 +53,55 @@ class InputListHandler {
     }
   }
 
+  List<List<int>> prepareList2(var fileOrList, [String syncOrAsync = 'sync']) {
+    List<List<int>> _unsortedList;
+    if (fileOrList is String) {
+      if (syncOrAsync == 'sync') {
+        _unsortedList = list2FromFileSync(fileOrList);
+      } else {
+        //_unsortedList = listFromFileAsync(fileOrList);
+      }
+    } else if (fileOrList is List) {
+      if (fileOrList.every((element) => element is int)) {
+        _unsortedList = new List.from(fileOrList);
+      } else {
+        print("The input data is not formatted correctly.");
+        print("All elements must be integers.");
+        return(null);
+      }
+    }
+    return _unsortedList;
+  }
+
+  List<List<int>> list2FromFileSync(String filename) {
+    List<String> _buffin;
+    List<List<int>> _buffer = [];
+    File fileHandle = new File(filename);
+    try {
+      _buffin = fileHandle.readAsLinesSync();
+    } catch(error) {
+      print("There was an error opening the file:\n$error");
+      return(null);
+    }
+
+    try {
+      _buffin.forEach((element) {
+        if(!element.isEmpty) {
+          List<String> stringBuffer = element.split(" ");
+          List<int> intBuffer = [];
+          stringBuffer.forEach((element) {
+            if(!element.isEmpty) intBuffer.add(int.parse(element.trim()));
+          });
+          _buffer.add(intBuffer);
+        }
+      });
+      return _buffer;
+    } catch(error) {
+      print("There was an error reading the input data:\n$error");
+      return(null);
+    }
+  }
+
   List<int> listFromFileAsync(String filename) {
     List<String> _buffer;
   }
@@ -64,7 +113,7 @@ class InputListHandler {
  * ****************************************************** */
 
 class DoubleInputListHandler {
-  List prepareList(var fileOrList, [String syncOrAsync = 'sync']) {
+  List prepareList(var fileOrList, {String syncOrAsync: 'sync'}) {
     List<num> _numList;
     if (fileOrList is String) {
       if (syncOrAsync == 'sync') {
@@ -73,7 +122,7 @@ class DoubleInputListHandler {
         _numList = listFromFileAsync(fileOrList);
       }
     } else if (fileOrList is List) {
-      if (fileOrList.every(f(element) => element is num)) {
+      if (fileOrList.every((element) => element is num)) {
         _numList = new List.from(fileOrList);
       } else {
         print("The input data is not formatted correctly.");
@@ -107,6 +156,55 @@ class DoubleInputListHandler {
     }
   }
 
+  List<List<num>> prepareList2(var fileOrList, [String syncOrAsync = 'sync']) {
+    List<List<num>> _unsortedList;
+    if (fileOrList is String) {
+      if (syncOrAsync == 'sync') {
+        _unsortedList = list2FromFileSync(fileOrList);
+      } else {
+        //_unsortedList = listFromFileAsync(fileOrList);
+      }
+    } else if (fileOrList is List) {
+      if (fileOrList.every((element) => element is double)) {
+        _unsortedList = new List.from(fileOrList);
+      } else {
+        print("The input data is not formatted correctly.");
+        print("All elements must be doubles.");
+        return(null);
+      }
+    }
+    return _unsortedList;
+  }
+
+  List<List<int>> list2FromFileSync(String filename) {
+    List<String> _buffin;
+    List<List<num>> _buffer = [];
+    File fileHandle = new File(filename);
+    try {
+      _buffin = fileHandle.readAsLinesSync();
+    } catch(error) {
+      print("There was an error opening the file:\n$error");
+      return(null);
+    }
+
+    try {
+      _buffin.forEach((element) {
+        if(!element.isEmpty) {
+          List<String> stringBuffer = element.split(" ");
+          List<num> intBuffer = [];
+          stringBuffer.forEach((element) {
+            if(!element.isEmpty) intBuffer.add(double.parse(element.trim()));
+          });
+          _buffer.add(intBuffer);
+        }
+      });
+      return _buffer;
+    } catch(error) {
+      print("There was an error reading the input data:\n$error");
+      return(null);
+    }
+  }
+
   List<num> listFromFileAsync(String filename) {
     //Not implemented yet...
     return(null);
@@ -131,10 +229,10 @@ class ComplexInputListHandler {
       // Convert list to complex.
       _complexList = toComplex(_numList);
     } else if (fileOrList is List) {
-      if (fileOrList.every(f(element) => element is num)) {
+      if (fileOrList.every((element) => element is num)) {
         // Convert list to complex.
         _complexList = toComplex(fileOrList);
-      } else if (fileOrList.every(f(element) => element is Complex)) {
+      } else if (fileOrList.every((element) => element is Complex)) {
         _complexList = new List.from(fileOrList);
       } else {
         print("The input data is not formatted correctly.");
