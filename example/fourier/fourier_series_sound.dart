@@ -15,7 +15,7 @@ void main() {
   var fourier = fsps(waveform, kvals);
   if (fourier != null) {
     exportToWeb(fourier.jsonData, 'local', 8080);
-    exportToFile(fourier.psums, 'local/data/fsps.txt');
+    exportToFile(fourier.psums, '../../local/data/fsps.txt');
     print('We have computed ${fourier.psums.length} Fourier series.');
     if (fourier.psums[kvals[0]].every((element) => element is Complex)) {
       print('The computed Fourier series is of type Complex.');

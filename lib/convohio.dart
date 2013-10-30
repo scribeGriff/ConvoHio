@@ -10,7 +10,7 @@ import 'package:convolab/convolab.dart';
 
 import 'dart:io';
 import 'dart:collection';
-import 'dart:json' as json;
+import 'dart:convert';
 
 part 'src/export.dart';
 part 'src/import.dart';

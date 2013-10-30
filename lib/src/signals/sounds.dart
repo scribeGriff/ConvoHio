@@ -6,6 +6,6 @@ part of convohio;
  * ****************************************************** */
 
 List sound([num sampleNum = 1])  {
-  String filename = "lib/external/data/sound${sampleNum.toInt()}.txt";
+  String filename = "../../lib/external/data/sound${sampleNum.toInt()}.txt";
   return new DoubleInputListHandler().prepareList(filename);
 }
